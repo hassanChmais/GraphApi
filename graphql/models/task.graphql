@@ -1,0 +1,36 @@
+type Task {
+    id: ID!
+    name: String!
+    user : User @belongsTo
+    created_at: DateTime!
+}
+
+extend type Query {
+    tasks: [Task!]! @all
+    task(id: ID @eq): Task @find
+    searchByName(name:String! @where(operator:"like")):[Task!]! @all
+    searchByUser(user_id:Int! @where(operator:"like") , name:String! @where(operator:"like")):[Task!]! @withCount(relation: "tasks")
+    authTasks:[Task!]! @all @whereAuth(relation: "user")
+    
+
+}
+
+extend type Mutation{
+    
+    createTask(input: TaskInput! @spread): Task  @create
+    updateTask(input: TaskInputUpdate! @spread): Task @update
+    deleteTask(id:ID!): Task @delete
+}
+
+input TaskInput{
+    
+user_id:Int!
+name:String! @rules(apply: ["string" , "min:3"])
+
+}
+input TaskInputUpdate{
+    
+id:ID!
+name:String! @rules(apply: ["string" , "min:3"])
+
+}
